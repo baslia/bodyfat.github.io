@@ -151,6 +151,95 @@ const modal = document.getElementById('measurementGuide');
 const closeModal = document.querySelector('.close');
 const helpButtons = document.querySelectorAll('.help-btn');
 
+function setLanguage(lang) {
+    currentLanguage = lang;
+    enBtn.classList.toggle('active', lang === 'en');
+    frBtn.classList.toggle('active', lang === 'fr');
+
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+
+    document.getElementById('guideTitle').textContent = translations[lang].howToMeasure;
+
+    const resultsDiv = document.getElementById('results');
+    if (resultsDiv.style.display !== 'none') {
+        const bodyFatPercentage = parseFloat(document.getElementById('bodyFatPercentage').textContent);
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        displayBodyFatScale(bodyFatPercentage, gender);
+
+        const { category, interpretation } = getBodyFatCategory(bodyFatPercentage, gender);
+        document.getElementById('category').textContent = category;
+        document.getElementById('interpretationText').textContent = interpretation;
+    }
+
+    saveData();
+}
+
+const inputFields = ['weight', 'height', 'neck', 'waist', 'hip', 'chest', 'bicep', 'forearm', 'thigh', 'calf'];
+
+function saveData() {
+    const data = {
+        isMetric: isMetric,
+        isAdvanced: isAdvanced,
+        language: currentLanguage,
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        measurements: {}
+    };
+
+    inputFields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input && input.value) {
+            data.measurements[fieldId] = input.value;
+        }
+    });
+
+    localStorage.setItem('bodyFatCalculatorData', JSON.stringify(data));
+}
+
+function loadSavedData() {
+    const savedData = localStorage.getItem('bodyFatCalculatorData');
+    if (!savedData) return;
+
+    try {
+        const data = JSON.parse(savedData);
+
+        if (data.language) {
+            setLanguage(data.language);
+        }
+
+        if (data.isMetric !== undefined) {
+            toggleUnits(data.isMetric);
+        }
+
+        if (data.isAdvanced !== undefined) {
+            toggleMode(data.isAdvanced);
+        }
+
+        if (data.gender) {
+            const genderInput = document.querySelector(`input[name="gender"][value="${data.gender}"]`);
+            if (genderInput) {
+                genderInput.checked = true;
+                updateGenderFields();
+            }
+        }
+
+        if (data.measurements) {
+            Object.keys(data.measurements).forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.value = data.measurements[fieldId];
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error loading saved data:', e);
+    }
+}
+
 loadSavedData();
 
 metricBtn.addEventListener('click', () => toggleUnits(true));
@@ -190,7 +279,6 @@ form.addEventListener('submit', (e) => {
     calculateBodyFat();
 });
 
-const inputFields = ['weight', 'height', 'neck', 'waist', 'hip', 'chest', 'bicep', 'forearm', 'thigh', 'calf'];
 inputFields.forEach(fieldId => {
     const input = document.getElementById(fieldId);
     if (input) {
@@ -767,93 +855,6 @@ function showMeasurementGuide(measurement) {
     const guide = guides[measurement];
     guideContent.innerHTML = guide.content;
     modal.style.display = 'flex';
-}
-
-function setLanguage(lang) {
-    currentLanguage = lang;
-    enBtn.classList.toggle('active', lang === 'en');
-    frBtn.classList.toggle('active', lang === 'fr');
-
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-            element.textContent = translations[lang][key];
-        }
-    });
-
-    document.getElementById('guideTitle').textContent = translations[lang].howToMeasure;
-
-    const resultsDiv = document.getElementById('results');
-    if (resultsDiv.style.display !== 'none') {
-        const bodyFatPercentage = parseFloat(document.getElementById('bodyFatPercentage').textContent);
-        const gender = document.querySelector('input[name="gender"]:checked').value;
-        displayBodyFatScale(bodyFatPercentage, gender);
-
-        const { category, interpretation } = getBodyFatCategory(bodyFatPercentage, gender);
-        document.getElementById('category').textContent = category;
-        document.getElementById('interpretationText').textContent = interpretation;
-    }
-
-    saveData();
-}
-
-function saveData() {
-    const data = {
-        isMetric: isMetric,
-        isAdvanced: isAdvanced,
-        language: currentLanguage,
-        gender: document.querySelector('input[name="gender"]:checked').value,
-        measurements: {}
-    };
-
-    inputFields.forEach(fieldId => {
-        const input = document.getElementById(fieldId);
-        if (input && input.value) {
-            data.measurements[fieldId] = input.value;
-        }
-    });
-
-    localStorage.setItem('bodyFatCalculatorData', JSON.stringify(data));
-}
-
-function loadSavedData() {
-    const savedData = localStorage.getItem('bodyFatCalculatorData');
-    if (!savedData) return;
-
-    try {
-        const data = JSON.parse(savedData);
-
-        if (data.language) {
-            setLanguage(data.language);
-        }
-
-        if (data.isMetric !== undefined) {
-            toggleUnits(data.isMetric);
-        }
-
-        if (data.isAdvanced !== undefined) {
-            toggleMode(data.isAdvanced);
-        }
-
-        if (data.gender) {
-            const genderInput = document.querySelector(`input[name="gender"][value="${data.gender}"]`);
-            if (genderInput) {
-                genderInput.checked = true;
-                updateGenderFields();
-            }
-        }
-
-        if (data.measurements) {
-            Object.keys(data.measurements).forEach(fieldId => {
-                const input = document.getElementById(fieldId);
-                if (input) {
-                    input.value = data.measurements[fieldId];
-                }
-            });
-        }
-    } catch (e) {
-        console.error('Error loading saved data:', e);
-    }
 }
 
 updateGenderFields();
