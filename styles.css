@@ -344,8 +344,15 @@ header h1 {
 
 .methods-results h3 {
     color: #667eea;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-size: 1.2em;
+}
+
+.reliability-note {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 15px;
+    font-style: italic;
 }
 
 .method-result {
@@ -361,6 +368,21 @@ header h1 {
 
 .method-result:hover {
     background: #f0f4ff;
+}
+
+.method-result.most-reliable {
+    background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+    border: 2px solid #ffd700;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
+}
+
+.method-result.most-reliable:hover {
+    background: linear-gradient(135deg, #fff5cc 0%, #fff9e6 100%);
+}
+
+.method-result.most-reliable .method-name {
+    color: #cc8800;
+    font-weight: 700;
 }
 
 .method-name {

@@ -60,13 +60,14 @@ const translations = {
         methodBMI: "BMI-Based Method",
         methodRFM: "Relative Fat Mass (RFM)",
         methodYMCA: "YMCA Formula",
-        methodCovertBailey: "Covert Bailey Method",
+        methodCovertBailey: "Deurenberg Formula",
         methodJP3: "Jackson-Pollock 3-Site",
         methodEnhanced: "Enhanced Multi-Site",
         notAvailable: "Not available",
         requiresHip: "requires hip measurement",
         requiresChestThigh: "requires chest and thigh measurements",
-        requiresAllAdvanced: "requires all advanced measurements (chest, bicep, forearm, thigh, calf)"
+        requiresAllAdvanced: "requires all advanced measurements (chest, bicep, forearm, thigh, calf)",
+        reliabilityNote: "⭐ = Most reliable method (weighted 3x in average calculation)"
     },
     fr: {
         title: "Calculateur Précis de Graisse Corporelle",
@@ -125,15 +126,15 @@ const translations = {
         methodBMI: "Méthode Basée sur l'IMC",
         methodRFM: "Masse Grasse Relative (RFM)",
         methodYMCA: "Formule YMCA",
-        methodCovertBailey: "Méthode Covert Bailey",
+        methodCovertBailey: "Formule de Deurenberg",
         methodJP3: "Jackson-Pollock 3-Sites",
         methodEnhanced: "Multi-Sites Améliorée",
         notAvailable: "Non disponible",
         requiresHip: "nécessite la mesure des hanches",
         requiresChestThigh: "nécessite les mesures de poitrine et cuisse",
-        requiresAllAdvanced: "nécessite toutes les mesures avancées (poitrine, biceps, avant-bras, cuisse, mollet)"
+        requiresAllAdvanced: "nécessite toutes les mesures avancées (poitrine, biceps, avant-bras, cuisse, mollet)",
+        reliabilityNote: "⭐ = Méthode la plus fiable (pondérée 3x dans le calcul de la moyenne)"
     }
-};
 };
 
 const metricBtn = document.getElementById('metricBtn');
@@ -241,11 +242,11 @@ function calculateBodyFat() {
     let waist = parseFloat(document.getElementById('waist').value);
     let hip = gender === 'female' ? (parseFloat(document.getElementById('hip').value) || 0) : 0;
 
-    const chest = parseFloat(document.getElementById('chest').value) || 0;
-    const bicep = parseFloat(document.getElementById('bicep').value) || 0;
-    const forearm = parseFloat(document.getElementById('forearm').value) || 0;
-    const thigh = parseFloat(document.getElementById('thigh').value) || 0;
-    const calf = parseFloat(document.getElementById('calf').value) || 0;
+    let chest = parseFloat(document.getElementById('chest').value) || 0;
+    let bicep = parseFloat(document.getElementById('bicep').value) || 0;
+    let forearm = parseFloat(document.getElementById('forearm').value) || 0;
+    let thigh = parseFloat(document.getElementById('thigh').value) || 0;
+    let calf = parseFloat(document.getElementById('calf').value) || 0;
 
     if (!isMetric) {
         weight = weight * 0.453592;
@@ -253,11 +254,11 @@ function calculateBodyFat() {
         neck = neck * 2.54;
         waist = waist * 2.54;
         hip = hip * 2.54;
-        if (chest) chest = chest * 2.54;
-        if (bicep) bicep = bicep * 2.54;
-        if (forearm) forearm = forearm * 2.54;
-        if (thigh) thigh = thigh * 2.54;
-        if (calf) calf = calf * 2.54;
+        chest = chest * 2.54;
+        bicep = bicep * 2.54;
+        forearm = forearm * 2.54;
+        thigh = thigh * 2.54;
+        calf = calf * 2.54;
     }
 
     const bmi = weight / Math.pow(height / 100, 2);
@@ -271,14 +272,18 @@ function calculateBodyFat() {
 
     results.ymca = calculateYMCA(gender, weight, waist);
 
-    results.covertBailey = calculateCovertBailey(gender, height, waist, hip, neck);
+    results.covertBailey = calculateCovertBailey(gender, height, waist, hip, neck, bmi);
 
     if (chest && thigh) {
         results.jp3Site = calculateJP3Site(gender, chest, thigh, waist, hip);
+    } else {
+        results.jp3Site = null;
     }
 
-    if (chest && bicep && forearm && thigh && calf && waist && hip) {
+    if (chest && bicep && forearm && thigh && calf) {
         results.enhanced = calculateEnhanced(gender, height, neck, waist, hip, chest, bicep, forearm, thigh, calf);
+    } else {
+        results.enhanced = null;
     }
 
     displayResults(results, bmi, gender, weight);
@@ -321,12 +326,12 @@ function calculateYMCA(gender, weight, waist) {
     }
 }
 
-function calculateCovertBailey(gender, height, waist, hip, neck) {
+function calculateCovertBailey(gender, height, waist, hip, neck, bmi) {
+    const age = 30;
     if (gender === 'male') {
-        return (waist - neck) * 1.082 + 94.42 - height * 1.12;
+        return (1.20 * bmi) + (0.23 * age) - (10.8 * 1) - 5.4;
     } else {
-        if (!hip) return null;
-        return (waist + hip - neck) * 0.730 + 8.987 - height * 0.157;
+        return (1.20 * bmi) + (0.23 * age) - (10.8 * 0) - 5.4;
     }
 }
 
@@ -370,8 +375,20 @@ function displayResults(results, bmi, gender, weight) {
     const bmiEl = document.getElementById('bmi');
     const interpretationEl = document.getElementById('interpretationText');
 
+    const mostReliable = determineMostReliable(results);
+
     const availableResults = Object.entries(results).filter(([key, value]) => value !== null);
-    const avgBodyFat = availableResults.reduce((sum, [key, value]) => sum + value, 0) / availableResults.length;
+
+    let totalWeight = 0;
+    let weightedSum = 0;
+
+    availableResults.forEach(([key, value]) => {
+        const weight = key === mostReliable ? 3.0 : 1.0;
+        weightedSum += value * weight;
+        totalWeight += weight;
+    });
+
+    const avgBodyFat = weightedSum / totalWeight;
 
     bodyFatEl.textContent = avgBodyFat.toFixed(1);
 
@@ -390,7 +407,7 @@ function displayResults(results, bmi, gender, weight) {
     interpretationEl.textContent = interpretation;
 
     displayBodyFatScale(avgBodyFat, gender);
-    displayMethodResults(results, gender);
+    displayMethodResults(results, gender, mostReliable);
 
     resultsDiv.style.display = 'block';
     resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -439,9 +456,23 @@ function displayBodyFatScale(bodyFatPercentage, gender) {
     });
 }
 
-function displayMethodResults(results, gender) {
+function determineMostReliable(results) {
+    let mostReliable;
+    if (results.enhanced !== null && results.enhanced !== undefined) {
+        mostReliable = 'enhanced';
+    } else if (results.jp3Site !== null && results.jp3Site !== undefined) {
+        mostReliable = 'jp3Site';
+    } else {
+        mostReliable = 'usNavy';
+    }
+    console.log('Most reliable method:', mostReliable, 'Results:', results);
+    return mostReliable;
+}
+
+function displayMethodResults(results, gender, mostReliable) {
     const lang = currentLanguage;
     let html = '<div class="methods-results"><h3>' + translations[lang].methodsTitle + '</h3>';
+    html += '<p class="reliability-note">' + translations[lang].reliabilityNote + '</p>';
 
     const methodNames = {
         usNavy: translations[lang].methodUSNavy,
@@ -463,10 +494,18 @@ function displayMethodResults(results, gender) {
         enhanced: translations[lang].requiresAllAdvanced
     };
 
-    for (const [key, value] of Object.entries(results)) {
+    const methodOrder = ['enhanced', 'jp3Site', 'usNavy', 'ymca', 'rfm', 'bmiMethod', 'covertBailey'];
+
+    methodOrder.forEach(key => {
+        if (results[key] === undefined) return;
+
+        const value = results[key];
         const methodName = methodNames[key];
-        html += '<div class="method-result">';
-        html += `<span class="method-name">${methodName}:</span> `;
+        const isMostReliable = key === mostReliable;
+        console.log('Method:', key, 'isMostReliable:', isMostReliable, 'mostReliable:', mostReliable);
+
+        html += `<div class="method-result ${isMostReliable ? 'most-reliable' : ''}">`;
+        html += `<span class="method-name">${methodName}${isMostReliable ? ' ⭐' : ''}:</span> `;
 
         if (value !== null) {
             html += `<span class="method-value">${value.toFixed(1)}%</span>`;
@@ -475,7 +514,7 @@ function displayMethodResults(results, gender) {
         }
 
         html += '</div>';
-    }
+    });
 
     html += '</div>';
 
