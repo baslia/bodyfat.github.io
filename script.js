@@ -61,11 +61,11 @@ const translations = {
         methodRFM: "Relative Fat Mass (RFM)",
         methodYMCA: "YMCA Formula",
         methodCovertBailey: "Deurenberg Formula",
-        methodJP3: "Jackson-Pollock 3-Site",
+        methodJP3: "CUN-BAE Formula",
         methodEnhanced: "Enhanced Multi-Site",
         notAvailable: "Not available",
         requiresHip: "requires hip measurement",
-        requiresChestThigh: "requires chest and thigh measurements",
+        requiresChestThigh: "requires chest, thigh, and hip measurements",
         requiresAllAdvanced: "requires all advanced measurements (chest, bicep, forearm, thigh, calf)",
         reliabilityNote: "⭐ = Most reliable method (weighted 3x in average calculation)"
     },
@@ -131,7 +131,7 @@ const translations = {
         methodEnhanced: "Multi-Sites Améliorée",
         notAvailable: "Non disponible",
         requiresHip: "nécessite la mesure des hanches",
-        requiresChestThigh: "nécessite les mesures de poitrine et cuisse",
+        requiresChestThigh: "nécessite les mesures de poitrine, cuisse et hanches",
         requiresAllAdvanced: "nécessite toutes les mesures avancées (poitrine, biceps, avant-bras, cuisse, mollet)",
         reliabilityNote: "⭐ = Méthode la plus fiable (pondérée 3x dans le calcul de la moyenne)"
     }
@@ -362,8 +362,8 @@ function calculateBodyFat() {
 
     results.covertBailey = calculateCovertBailey(gender, height, waist, hip, neck, bmi);
 
-    if (chest && thigh) {
-        results.jp3Site = calculateJP3Site(gender, chest, thigh, waist, hip);
+    if (chest && thigh && hip) {
+        results.jp3Site = calculateJP3Site(gender, chest, thigh, waist, hip, bmi);
     } else {
         results.jp3Site = null;
     }
@@ -423,18 +423,12 @@ function calculateCovertBailey(gender, height, waist, hip, neck, bmi) {
     }
 }
 
-function calculateJP3Site(gender, chest, thigh, waist, hip) {
+function calculateJP3Site(gender, chest, thigh, waist, hip, bmi) {
+    const age = 30;
     if (gender === 'male') {
-        const sumSkinfolds = chest + thigh + waist;
-        const age = 30;
-        const density = 1.10938 - (0.0008267 * sumSkinfolds) + (0.0000016 * Math.pow(sumSkinfolds, 2)) - (0.0002574 * age);
-        return (495 / density) - 450;
+        return -44.988 + (0.503 * age) + (10.689 * (gender === 'male' ? 0 : 1)) + (3.172 * bmi) - (0.026 * (bmi * bmi)) + (0.181 * (bmi * (gender === 'male' ? 0 : 1))) - (0.02 * (bmi * age)) - (0.005 * ((bmi * bmi) * (gender === 'male' ? 0 : 1))) + (0.00021 * ((bmi * bmi) * age));
     } else {
-        if (!hip) return null;
-        const sumSkinfolds = thigh + waist + hip;
-        const age = 30;
-        const density = 1.0994921 - (0.0009929 * sumSkinfolds) + (0.0000023 * Math.pow(sumSkinfolds, 2)) - (0.0001392 * age);
-        return (495 / density) - 450;
+        return -44.988 + (0.503 * age) + (10.689 * 1) + (3.172 * bmi) - (0.026 * (bmi * bmi)) + (0.181 * bmi) - (0.02 * (bmi * age)) - (0.005 * (bmi * bmi)) + (0.00021 * ((bmi * bmi) * age));
     }
 }
 
