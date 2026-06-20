@@ -13,13 +13,18 @@ const modal = document.getElementById('measurementGuide');
 const closeModal = document.querySelector('.close');
 const helpButtons = document.querySelectorAll('.help-btn');
 
+loadSavedData();
+
 metricBtn.addEventListener('click', () => toggleUnits(true));
 imperialBtn.addEventListener('click', () => toggleUnits(false));
 simpleBtn.addEventListener('click', () => toggleMode(false));
 advancedBtn.addEventListener('click', () => toggleMode(true));
 
 genderInputs.forEach(input => {
-    input.addEventListener('change', updateGenderFields);
+    input.addEventListener('change', () => {
+        updateGenderFields();
+        saveData();
+    });
 });
 
 helpButtons.forEach(btn => {
@@ -45,6 +50,14 @@ form.addEventListener('submit', (e) => {
     calculateBodyFat();
 });
 
+const inputFields = ['weight', 'height', 'neck', 'waist', 'hip', 'chest', 'bicep', 'forearm', 'thigh', 'calf'];
+inputFields.forEach(fieldId => {
+    const input = document.getElementById(fieldId);
+    if (input) {
+        input.addEventListener('input', saveData);
+    }
+});
+
 function toggleUnits(metric) {
     isMetric = metric;
     metricBtn.classList.toggle('active', metric);
@@ -59,6 +72,8 @@ function toggleUnits(metric) {
             label.textContent = isMetric ? '(cm)' : '(in)';
         }
     });
+
+    saveData();
 }
 
 function toggleMode(advanced) {
@@ -66,6 +81,7 @@ function toggleMode(advanced) {
     simpleBtn.classList.toggle('active', !advanced);
     advancedBtn.classList.toggle('active', advanced);
     advancedInputs.style.display = advanced ? 'block' : 'none';
+    saveData();
 }
 
 function updateGenderFields() {
@@ -393,6 +409,60 @@ function showMeasurementGuide(measurement) {
     guideTitle.textContent = guide.title;
     guideContent.innerHTML = guide.content;
     modal.style.display = 'flex';
+}
+
+function saveData() {
+    const data = {
+        isMetric: isMetric,
+        isAdvanced: isAdvanced,
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        measurements: {}
+    };
+
+    inputFields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input && input.value) {
+            data.measurements[fieldId] = input.value;
+        }
+    });
+
+    localStorage.setItem('bodyFatCalculatorData', JSON.stringify(data));
+}
+
+function loadSavedData() {
+    const savedData = localStorage.getItem('bodyFatCalculatorData');
+    if (!savedData) return;
+
+    try {
+        const data = JSON.parse(savedData);
+
+        if (data.isMetric !== undefined) {
+            toggleUnits(data.isMetric);
+        }
+
+        if (data.isAdvanced !== undefined) {
+            toggleMode(data.isAdvanced);
+        }
+
+        if (data.gender) {
+            const genderInput = document.querySelector(`input[name="gender"][value="${data.gender}"]`);
+            if (genderInput) {
+                genderInput.checked = true;
+                updateGenderFields();
+            }
+        }
+
+        if (data.measurements) {
+            Object.keys(data.measurements).forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.value = data.measurements[fieldId];
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error loading saved data:', e);
+    }
 }
 
 updateGenderFields();
