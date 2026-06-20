@@ -276,10 +276,14 @@ function calculateBodyFat() {
 
     if (chest && thigh) {
         results.jp3Site = calculateJP3Site(gender, chest, thigh, waist, hip);
+    } else {
+        results.jp3Site = null;
     }
 
-    if (chest && bicep && forearm && thigh && calf && waist && hip) {
+    if (chest && bicep && forearm && thigh && calf) {
         results.enhanced = calculateEnhanced(gender, height, neck, waist, hip, chest, bicep, forearm, thigh, calf);
+    } else {
+        results.enhanced = null;
     }
 
     displayResults(results, bmi, gender, weight);
@@ -453,13 +457,16 @@ function displayBodyFatScale(bodyFatPercentage, gender) {
 }
 
 function determineMostReliable(results) {
-    if (results.enhanced !== null) {
-        return 'enhanced';
-    } else if (results.jp3Site !== null) {
-        return 'jp3Site';
+    let mostReliable;
+    if (results.enhanced !== null && results.enhanced !== undefined) {
+        mostReliable = 'enhanced';
+    } else if (results.jp3Site !== null && results.jp3Site !== undefined) {
+        mostReliable = 'jp3Site';
     } else {
-        return 'usNavy';
+        mostReliable = 'usNavy';
     }
+    console.log('Most reliable method:', mostReliable, 'Results:', results);
+    return mostReliable;
 }
 
 function displayMethodResults(results, gender, mostReliable) {
@@ -487,9 +494,16 @@ function displayMethodResults(results, gender, mostReliable) {
         enhanced: translations[lang].requiresAllAdvanced
     };
 
-    for (const [key, value] of Object.entries(results)) {
+    const methodOrder = ['enhanced', 'jp3Site', 'usNavy', 'ymca', 'rfm', 'bmiMethod', 'covertBailey'];
+
+    methodOrder.forEach(key => {
+        if (results[key] === undefined) return;
+
+        const value = results[key];
         const methodName = methodNames[key];
         const isMostReliable = key === mostReliable;
+        console.log('Method:', key, 'isMostReliable:', isMostReliable, 'mostReliable:', mostReliable);
+
         html += `<div class="method-result ${isMostReliable ? 'most-reliable' : ''}">`;
         html += `<span class="method-name">${methodName}${isMostReliable ? ' ⭐' : ''}:</span> `;
 
@@ -500,7 +514,7 @@ function displayMethodResults(results, gender, mostReliable) {
         }
 
         html += '</div>';
-    }
+    });
 
     html += '</div>';
 
