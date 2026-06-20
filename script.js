@@ -53,7 +53,19 @@ const translations = {
         interpFemaleAthletic: "This range is typical for female athletes. It indicates excellent fitness and low body fat, common among competitive athletes.",
         interpFemaleFitness: "This is a healthy range that indicates good fitness levels. You maintain an active lifestyle with regular exercise.",
         interpFemaleAverage: "This falls within the average range for women. While not unhealthy, there may be room for improvement through diet and exercise.",
-        interpFemaleAbove: "This is above the average range. Consider consulting with a healthcare provider about healthy weight management strategies."
+        interpFemaleAbove: "This is above the average range. Consider consulting with a healthcare provider about healthy weight management strategies.",
+        methodsTitle: "All Calculation Methods",
+        methodUSNavy: "U.S. Navy Method",
+        methodBMI: "BMI-Based Method",
+        methodRFM: "Relative Fat Mass (RFM)",
+        methodYMCA: "YMCA Formula",
+        methodCovertBailey: "Covert Bailey Method",
+        methodJP3: "Jackson-Pollock 3-Site",
+        methodEnhanced: "Enhanced Multi-Site",
+        notAvailable: "Not available",
+        requiresHip: "requires hip measurement",
+        requiresChestThigh: "requires chest and thigh measurements",
+        requiresAllAdvanced: "requires all advanced measurements (chest, bicep, forearm, thigh, calf)"
     },
     fr: {
         title: "Calculateur Précis de Graisse Corporelle",
@@ -105,8 +117,21 @@ const translations = {
         interpFemaleAthletic: "Cette plage est typique des athlètes féminines. Elle indique une excellente condition physique et un faible taux de graisse corporelle, courant chez les athlètes de compétition.",
         interpFemaleFitness: "Il s'agit d'une plage saine qui indique de bons niveaux de condition physique. Vous maintenez un mode de vie actif avec de l'exercice régulier.",
         interpFemaleAverage: "Cela se situe dans la moyenne pour les femmes. Bien que non malsain, il peut y avoir place à l'amélioration par l'alimentation et l'exercice.",
-        interpFemaleAbove: "C'est au-dessus de la moyenne. Envisagez de consulter un professionnel de la santé au sujet de stratégies saines de gestion du poids."
+        interpFemaleAbove: "C'est au-dessus de la moyenne. Envisagez de consulter un professionnel de la santé au sujet de stratégies saines de gestion du poids.",
+        methodsTitle: "Toutes les Méthodes de Calcul",
+        methodUSNavy: "Méthode de la Marine Américaine",
+        methodBMI: "Méthode Basée sur l'IMC",
+        methodRFM: "Masse Grasse Relative (RFM)",
+        methodYMCA: "Formule YMCA",
+        methodCovertBailey: "Méthode Covert Bailey",
+        methodJP3: "Jackson-Pollock 3-Sites",
+        methodEnhanced: "Multi-Sites Améliorée",
+        notAvailable: "Non disponible",
+        requiresHip: "nécessite la mesure des hanches",
+        requiresChestThigh: "nécessite les mesures de poitrine et cuisse",
+        requiresAllAdvanced: "nécessite toutes les mesures avancées (poitrine, biceps, avant-bras, cuisse, mollet)"
     }
+};
 };
 
 const metricBtn = document.getElementById('metricBtn');
@@ -212,7 +237,13 @@ function calculateBodyFat() {
     let height = parseFloat(document.getElementById('height').value);
     let neck = parseFloat(document.getElementById('neck').value);
     let waist = parseFloat(document.getElementById('waist').value);
-    let hip = gender === 'female' ? parseFloat(document.getElementById('hip').value) : 0;
+    let hip = gender === 'female' ? (parseFloat(document.getElementById('hip').value) || 0) : 0;
+
+    const chest = parseFloat(document.getElementById('chest').value) || 0;
+    const bicep = parseFloat(document.getElementById('bicep').value) || 0;
+    const forearm = parseFloat(document.getElementById('forearm').value) || 0;
+    const thigh = parseFloat(document.getElementById('thigh').value) || 0;
+    const calf = parseFloat(document.getElementById('calf').value) || 0;
 
     if (!isMetric) {
         weight = weight * 0.453592;
@@ -220,46 +251,115 @@ function calculateBodyFat() {
         neck = neck * 2.54;
         waist = waist * 2.54;
         hip = hip * 2.54;
-    }
-
-    let bodyFatPercentage;
-
-    if (gender === 'male') {
-        bodyFatPercentage = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
-    } else {
-        bodyFatPercentage = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
-    }
-
-    if (isAdvanced) {
-        const chest = parseFloat(document.getElementById('chest').value) || 0;
-        const bicep = parseFloat(document.getElementById('bicep').value) || 0;
-        const forearm = parseFloat(document.getElementById('forearm').value) || 0;
-        const thigh = parseFloat(document.getElementById('thigh').value) || 0;
-        const calf = parseFloat(document.getElementById('calf').value) || 0;
-
-        if (chest && bicep && forearm && thigh && calf) {
-            let adjustedBF = bodyFatPercentage;
-            const avgCircumference = (chest + bicep + forearm + thigh + calf) / 5;
-            const circumferenceRatio = waist / avgCircumference;
-
-            if (circumferenceRatio > 1.5) {
-                adjustedBF += 1.5;
-            } else if (circumferenceRatio < 0.8) {
-                adjustedBF -= 1.0;
-            }
-
-            bodyFatPercentage = adjustedBF;
-        }
+        if (chest) chest = chest * 2.54;
+        if (bicep) bicep = bicep * 2.54;
+        if (forearm) forearm = forearm * 2.54;
+        if (thigh) thigh = thigh * 2.54;
+        if (calf) calf = calf * 2.54;
     }
 
     const bmi = weight / Math.pow(height / 100, 2);
-    const fatMass = weight * (bodyFatPercentage / 100);
-    const leanMass = weight - fatMass;
+    const results = {};
 
-    displayResults(bodyFatPercentage, fatMass, leanMass, bmi, gender, weight);
+    results.usNavy = calculateUSNavy(gender, height, neck, waist, hip);
+
+    results.bmiMethod = calculateBMIMethod(gender, bmi);
+
+    results.rfm = calculateRFM(gender, height, waist);
+
+    results.ymca = calculateYMCA(gender, weight, waist);
+
+    results.covertBailey = calculateCovertBailey(gender, height, waist, hip, neck);
+
+    if (chest && thigh) {
+        results.jp3Site = calculateJP3Site(gender, chest, thigh, waist, hip);
+    }
+
+    if (chest && bicep && forearm && thigh && calf && waist && hip) {
+        results.enhanced = calculateEnhanced(gender, height, neck, waist, hip, chest, bicep, forearm, thigh, calf);
+    }
+
+    displayResults(results, bmi, gender, weight);
 }
 
-function displayResults(bodyFatPercentage, fatMass, leanMass, bmi, gender, weight) {
+function calculateUSNavy(gender, height, neck, waist, hip) {
+    if (gender === 'male') {
+        return 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+    } else {
+        if (!hip) return null;
+        return 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
+    }
+}
+
+function calculateBMIMethod(gender, bmi) {
+    const age = 30;
+    if (gender === 'male') {
+        return (1.20 * bmi) + (0.23 * age) - 16.2;
+    } else {
+        return (1.20 * bmi) + (0.23 * age) - 5.4;
+    }
+}
+
+function calculateRFM(gender, height, waist) {
+    if (gender === 'male') {
+        return 64 - (20 * (height / waist));
+    } else {
+        return 76 - (20 * (height / waist));
+    }
+}
+
+function calculateYMCA(gender, weight, waist) {
+    const waistInches = waist / 2.54;
+    const weightLbs = weight * 2.20462;
+
+    if (gender === 'male') {
+        return ((4.15 * waistInches) - (0.082 * weightLbs) - 98.42) / weightLbs * 100;
+    } else {
+        return ((4.15 * waistInches) - (0.082 * weightLbs) - 76.76) / weightLbs * 100;
+    }
+}
+
+function calculateCovertBailey(gender, height, waist, hip, neck) {
+    if (gender === 'male') {
+        return (waist - neck) * 1.082 + 94.42 - height * 1.12;
+    } else {
+        if (!hip) return null;
+        return (waist + hip - neck) * 0.730 + 8.987 - height * 0.157;
+    }
+}
+
+function calculateJP3Site(gender, chest, thigh, waist, hip) {
+    if (gender === 'male') {
+        const sumSkinfolds = chest + thigh + waist;
+        const age = 30;
+        const density = 1.10938 - (0.0008267 * sumSkinfolds) + (0.0000016 * Math.pow(sumSkinfolds, 2)) - (0.0002574 * age);
+        return (495 / density) - 450;
+    } else {
+        if (!hip) return null;
+        const sumSkinfolds = thigh + waist + hip;
+        const age = 30;
+        const density = 1.0994921 - (0.0009929 * sumSkinfolds) + (0.0000023 * Math.pow(sumSkinfolds, 2)) - (0.0001392 * age);
+        return (495 / density) - 450;
+    }
+}
+
+function calculateEnhanced(gender, height, neck, waist, hip, chest, bicep, forearm, thigh, calf) {
+    let baseNavy = calculateUSNavy(gender, height, neck, waist, hip);
+    if (!baseNavy) return null;
+
+    const avgCircumference = (chest + bicep + forearm + thigh + calf) / 5;
+    const circumferenceRatio = waist / avgCircumference;
+
+    if (circumferenceRatio > 1.5) {
+        baseNavy += 1.5;
+    } else if (circumferenceRatio < 0.8) {
+        baseNavy -= 1.0;
+    }
+
+    return baseNavy;
+}
+
+function displayResults(results, bmi, gender, weight) {
     const resultsDiv = document.getElementById('results');
     const bodyFatEl = document.getElementById('bodyFatPercentage');
     const categoryEl = document.getElementById('category');
@@ -268,9 +368,14 @@ function displayResults(bodyFatPercentage, fatMass, leanMass, bmi, gender, weigh
     const bmiEl = document.getElementById('bmi');
     const interpretationEl = document.getElementById('interpretationText');
 
-    bodyFatEl.textContent = bodyFatPercentage.toFixed(1);
+    const availableResults = Object.entries(results).filter(([key, value]) => value !== null);
+    const avgBodyFat = availableResults.reduce((sum, [key, value]) => sum + value, 0) / availableResults.length;
+
+    bodyFatEl.textContent = avgBodyFat.toFixed(1);
 
     const weightUnit = isMetric ? 'kg' : 'lb';
+    const fatMass = weight * (avgBodyFat / 100);
+    const leanMass = weight - fatMass;
     const displayFatMass = isMetric ? fatMass : fatMass * 2.20462;
     const displayLeanMass = isMetric ? leanMass : leanMass * 2.20462;
 
@@ -278,12 +383,62 @@ function displayResults(bodyFatPercentage, fatMass, leanMass, bmi, gender, weigh
     leanMassEl.textContent = `${displayLeanMass.toFixed(1)} ${weightUnit}`;
     bmiEl.textContent = bmi.toFixed(1);
 
-    const { category, interpretation } = getBodyFatCategory(bodyFatPercentage, gender);
+    const { category, interpretation } = getBodyFatCategory(avgBodyFat, gender);
     categoryEl.textContent = category;
     interpretationEl.textContent = interpretation;
 
+    displayMethodResults(results, gender);
+
     resultsDiv.style.display = 'block';
     resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function displayMethodResults(results, gender) {
+    const lang = currentLanguage;
+    let html = '<div class="methods-results"><h3>' + translations[lang].methodsTitle + '</h3>';
+
+    const methodNames = {
+        usNavy: translations[lang].methodUSNavy,
+        bmiMethod: translations[lang].methodBMI,
+        rfm: translations[lang].methodRFM,
+        ymca: translations[lang].methodYMCA,
+        covertBailey: translations[lang].methodCovertBailey,
+        jp3Site: translations[lang].methodJP3,
+        enhanced: translations[lang].methodEnhanced
+    };
+
+    const requiredMeasurements = {
+        usNavy: gender === 'male' ? '' : translations[lang].requiresHip,
+        bmiMethod: '',
+        rfm: '',
+        ymca: '',
+        covertBailey: gender === 'male' ? '' : translations[lang].requiresHip,
+        jp3Site: translations[lang].requiresChestThigh,
+        enhanced: translations[lang].requiresAllAdvanced
+    };
+
+    for (const [key, value] of Object.entries(results)) {
+        const methodName = methodNames[key];
+        html += '<div class="method-result">';
+        html += `<span class="method-name">${methodName}:</span> `;
+
+        if (value !== null) {
+            html += `<span class="method-value">${value.toFixed(1)}%</span>`;
+        } else {
+            html += `<span class="method-unavailable">${translations[lang].notAvailable} - ${requiredMeasurements[key]}</span>`;
+        }
+
+        html += '</div>';
+    }
+
+    html += '</div>';
+
+    const interpretationDiv = document.querySelector('.interpretation');
+    const existingMethods = document.querySelector('.methods-results');
+    if (existingMethods) {
+        existingMethods.remove();
+    }
+    interpretationDiv.insertAdjacentHTML('afterend', html);
 }
 
 function getBodyFatCategory(percentage, gender) {

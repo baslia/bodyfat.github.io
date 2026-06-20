@@ -268,6 +268,52 @@ header h1 {
     color: #555;
 }
 
+.methods-results {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    border: 2px solid #e0e0e0;
+}
+
+.methods-results h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.method-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.method-result:hover {
+    background: #f0f4ff;
+}
+
+.method-name {
+    font-weight: 600;
+    color: #555;
+}
+
+.method-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.method-unavailable {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
 .modal {
     position: fixed;
     z-index: 1000;
