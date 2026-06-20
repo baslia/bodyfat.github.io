@@ -9,18 +9,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>💪 Precise Body Fat Calculator</h1>
-            <p class="subtitle">Calculate your body fat percentage using the U.S. Navy method</p>
+            <h1>💪 <span data-i18n="title">Precise Body Fat Calculator</span></h1>
+            <p class="subtitle" data-i18n="subtitle">Calculate your body fat percentage using the U.S. Navy method</p>
         </header>
 
+        <div class="language-toggle">
+            <button id="enBtn" class="lang-btn active">English</button>
+            <button id="frBtn" class="lang-btn">Français</button>
+        </div>
+
         <div class="unit-toggle">
-            <button id="metricBtn" class="unit-btn active">Metric (cm/kg)</button>
-            <button id="imperialBtn" class="unit-btn">Imperial (in/lb)</button>
+            <button id="metricBtn" class="unit-btn active" data-i18n="metricBtn">Metric (cm/kg)</button>
+            <button id="imperialBtn" class="unit-btn" data-i18n="imperialBtn">Imperial (in/lb)</button>
         </div>
 
         <div class="mode-toggle">
-            <button id="simpleBtn" class="mode-btn active">Simple Mode</button>
-            <button id="advancedBtn" class="mode-btn">Advanced Mode</button>
+            <button id="simpleBtn" class="mode-btn active" data-i18n="simpleMode">Simple Mode</button>
+            <button id="advancedBtn" class="mode-btn" data-i18n="advancedMode">Advanced Mode</button>
         </div>
 
         <div class="calculator-container">
@@ -28,96 +33,105 @@
                 <div class="gender-selection">
                     <label>
                         <input type="radio" name="gender" value="male" checked>
-                        <span class="gender-label">Male</span>
+                        <span class="gender-label" data-i18n="male">Male</span>
                     </label>
                     <label>
                         <input type="radio" name="gender" value="female">
-                        <span class="gender-label">Female</span>
+                        <span class="gender-label" data-i18n="female">Female</span>
                     </label>
                 </div>
 
                 <div class="input-group">
-                    <label for="weight">Weight <span class="unit-label">(kg)</span></label>
+                    <label for="weight"><span data-i18n="weight">Weight</span> <span class="unit-label">(kg)</span></label>
                     <input type="number" id="weight" step="0.1" required>
                 </div>
 
                 <div class="input-group">
-                    <label for="height">Height <span class="unit-label">(cm)</span></label>
+                    <label for="height"><span data-i18n="height">Height</span> <span class="unit-label">(cm)</span></label>
                     <input type="number" id="height" step="0.1" required>
                 </div>
 
                 <div class="input-group">
-                    <label for="neck">Neck <span class="unit-label">(cm)</span></label>
+                    <label for="neck"><span data-i18n="neck">Neck</span> <span class="unit-label">(cm)</span></label>
                     <input type="number" id="neck" step="0.1" required>
                     <button type="button" class="help-btn" data-measurement="neck">?</button>
                 </div>
 
                 <div class="input-group">
-                    <label for="waist">Waist <span class="unit-label">(cm)</span></label>
+                    <label for="waist"><span data-i18n="waist">Waist</span> <span class="unit-label">(cm)</span></label>
                     <input type="number" id="waist" step="0.1" required>
                     <button type="button" class="help-btn" data-measurement="waist">?</button>
                 </div>
 
                 <div id="femaleOnly" style="display: none;">
                     <div class="input-group">
-                        <label for="hip">Hip <span class="unit-label">(cm)</span></label>
+                        <label for="hip"><span data-i18n="hip">Hip</span> <span class="unit-label">(cm)</span></label>
                         <input type="number" id="hip" step="0.1">
                         <button type="button" class="help-btn" data-measurement="hip">?</button>
                     </div>
                 </div>
 
                 <div id="advancedInputs" style="display: none;">
-                    <h3>Additional Measurements</h3>
+                    <h3 data-i18n="additionalMeasurements">Additional Measurements</h3>
 
                     <div class="input-group">
-                        <label for="chest">Chest <span class="unit-label">(cm)</span></label>
+                        <label for="chest"><span data-i18n="chest">Chest</span> <span class="unit-label">(cm)</span></label>
                         <input type="number" id="chest" step="0.1">
                         <button type="button" class="help-btn" data-measurement="chest">?</button>
                     </div>
 
                     <div class="input-group">
-                        <label for="bicep">Bicep <span class="unit-label">(cm)</span></label>
+                        <label for="bicep"><span data-i18n="bicep">Bicep</span> <span class="unit-label">(cm)</span></label>
                         <input type="number" id="bicep" step="0.1">
                         <button type="button" class="help-btn" data-measurement="bicep">?</button>
                     </div>
 
                     <div class="input-group">
-                        <label for="forearm">Forearm <span class="unit-label">(cm)</span></label>
+                        <label for="forearm"><span data-i18n="forearm">Forearm</span> <span class="unit-label">(cm)</span></label>
                         <input type="number" id="forearm" step="0.1">
                         <button type="button" class="help-btn" data-measurement="forearm">?</button>
                     </div>
 
                     <div class="input-group">
-                        <label for="thigh">Thigh <span class="unit-label">(cm)</span></label>
+                        <label for="thigh"><span data-i18n="thigh">Thigh</span> <span class="unit-label">(cm)</span></label>
                         <input type="number" id="thigh" step="0.1">
                         <button type="button" class="help-btn" data-measurement="thigh">?</button>
                     </div>
 
                     <div class="input-group">
-                        <label for="calf">Calf <span class="unit-label">(cm)</span></label>
+                        <label for="calf"><span data-i18n="calf">Calf</span> <span class="unit-label">(cm)</span></label>
                         <input type="number" id="calf" step="0.1">
                         <button type="button" class="help-btn" data-measurement="calf">?</button>
                     </div>
                 </div>
 
-                <button type="submit" class="calculate-btn">Calculate Body Fat</button>
+                <button type="submit" class="calculate-btn" data-i18n="calculateBtn">Calculate Body Fat</button>
             </form>
 
             <div id="results" class="results" style="display: none;">
-                <h2>Your Results</h2>
+                <h2 data-i18n="yourResults">Your Results</h2>
                 <div class="result-main">
                     <div class="result-percentage">
                         <span class="percentage-value" id="bodyFatPercentage">0</span>%
                     </div>
                     <p class="result-category" id="category"></p>
                 </div>
+                <div class="bf-scale">
+                    <div class="bf-scale-bar">
+                        <div class="bf-scale-marker" id="bfMarker">
+                            <div class="bf-scale-marker-arrow"></div>
+                            <div class="bf-scale-marker-value" id="bfMarkerValue">0%</div>
+                        </div>
+                    </div>
+                    <div class="bf-scale-labels" id="bfScaleLabels"></div>
+                </div>
                 <div class="result-details">
                     <div class="detail-item">
-                        <span class="detail-label">Fat Mass:</span>
+                        <span class="detail-label" data-i18n="fatMass">Fat Mass:</span>
                         <span class="detail-value" id="fatMass">0</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Lean Mass:</span>
+                        <span class="detail-label" data-i18n="leanMass">Lean Mass:</span>
                         <span class="detail-value" id="leanMass">0</span>
                     </div>
                     <div class="detail-item">
@@ -126,7 +140,7 @@
                     </div>
                 </div>
                 <div class="interpretation">
-                    <h3>Interpretation</h3>
+                    <h3 data-i18n="interpretation">Interpretation</h3>
                     <p id="interpretationText"></p>
                 </div>
             </div>
@@ -141,8 +155,8 @@
         </div>
 
         <footer>
-            <p>This calculator uses the U.S. Navy body fat formula and additional measurements for enhanced accuracy.</p>
-            <p>Results are estimates and should not replace professional medical advice.</p>
+            <p data-i18n="footer1">This calculator uses the U.S. Navy body fat formula and additional measurements for enhanced accuracy.</p>
+            <p data-i18n="footer2">Results are estimates and should not replace professional medical advice.</p>
         </footer>
     </div>
 
