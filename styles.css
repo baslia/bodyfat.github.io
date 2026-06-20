@@ -34,14 +34,14 @@ header h1 {
     opacity: 0.95;
 }
 
-.unit-toggle, .mode-toggle {
+.language-toggle, .unit-toggle, .mode-toggle {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
 }
 
-.unit-btn, .mode-btn {
+.lang-btn, .unit-btn, .mode-btn {
     padding: 12px 24px;
     border: 2px solid white;
     background: rgba(255, 255, 255, 0.2);
@@ -53,12 +53,12 @@ header h1 {
     transition: all 0.3s ease;
 }
 
-.unit-btn:hover, .mode-btn:hover {
+.lang-btn:hover, .unit-btn:hover, .mode-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
 }
 
-.unit-btn.active, .mode-btn.active {
+.lang-btn.active, .unit-btn.active, .mode-btn.active {
     background: white;
     color: #667eea;
 }

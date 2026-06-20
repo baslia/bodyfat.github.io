@@ -1,10 +1,120 @@
 let isMetric = true;
 let isAdvanced = false;
+let currentLanguage = 'en';
+
+const translations = {
+    en: {
+        title: "Precise Body Fat Calculator",
+        subtitle: "Calculate your body fat percentage using the U.S. Navy method",
+        metricBtn: "Metric (cm/kg)",
+        imperialBtn: "Imperial (in/lb)",
+        simpleMode: "Simple Mode",
+        advancedMode: "Advanced Mode",
+        male: "Male",
+        female: "Female",
+        weight: "Weight",
+        height: "Height",
+        neck: "Neck",
+        waist: "Waist",
+        hip: "Hip",
+        chest: "Chest",
+        bicep: "Bicep",
+        forearm: "Forearm",
+        thigh: "Thigh",
+        calf: "Calf",
+        additionalMeasurements: "Additional Measurements",
+        calculateBtn: "Calculate Body Fat",
+        yourResults: "Your Results",
+        fatMass: "Fat Mass:",
+        leanMass: "Lean Mass:",
+        interpretation: "Interpretation",
+        footer1: "This calculator uses the U.S. Navy body fat formula and additional measurements for enhanced accuracy.",
+        footer2: "Results are estimates and should not replace professional medical advice.",
+        howToMeasure: "How to Measure",
+        measureNeck: "How to Measure Neck",
+        measureWaist: "How to Measure Waist",
+        measureHip: "How to Measure Hip",
+        measureChest: "How to Measure Chest",
+        measureBicep: "How to Measure Bicep",
+        measureForearm: "How to Measure Forearm",
+        measureThigh: "How to Measure Thigh",
+        measureCalf: "How to Measure Calf",
+        categoryEssential: "Essential Fat",
+        categoryAthletic: "Athletic",
+        categoryFitness: "Fitness",
+        categoryAverage: "Average",
+        categoryAbove: "Above Average",
+        interpMaleEssential: "This is below the essential fat level and may pose health risks. Essential fat is necessary for normal physiological function.",
+        interpMaleAthletic: "This range is typical for athletes. It indicates excellent fitness and low body fat, common among competitive athletes.",
+        interpMaleFitness: "This is a healthy range that indicates good fitness levels. You maintain an active lifestyle with regular exercise.",
+        interpMaleAverage: "This falls within the average range for men. While not unhealthy, there may be room for improvement through diet and exercise.",
+        interpMaleAbove: "This is above the average range. Consider consulting with a healthcare provider about healthy weight management strategies.",
+        interpFemaleEssential: "This is below the essential fat level and may pose health risks. Women require higher essential fat levels than men for normal physiological function.",
+        interpFemaleAthletic: "This range is typical for female athletes. It indicates excellent fitness and low body fat, common among competitive athletes.",
+        interpFemaleFitness: "This is a healthy range that indicates good fitness levels. You maintain an active lifestyle with regular exercise.",
+        interpFemaleAverage: "This falls within the average range for women. While not unhealthy, there may be room for improvement through diet and exercise.",
+        interpFemaleAbove: "This is above the average range. Consider consulting with a healthcare provider about healthy weight management strategies."
+    },
+    fr: {
+        title: "Calculateur Précis de Graisse Corporelle",
+        subtitle: "Calculez votre pourcentage de graisse corporelle avec la méthode de la Marine américaine",
+        metricBtn: "Métrique (cm/kg)",
+        imperialBtn: "Impérial (po/lb)",
+        simpleMode: "Mode Simple",
+        advancedMode: "Mode Avancé",
+        male: "Homme",
+        female: "Femme",
+        weight: "Poids",
+        height: "Taille",
+        neck: "Cou",
+        waist: "Taille",
+        hip: "Hanches",
+        chest: "Poitrine",
+        bicep: "Biceps",
+        forearm: "Avant-bras",
+        thigh: "Cuisse",
+        calf: "Mollet",
+        additionalMeasurements: "Mesures Supplémentaires",
+        calculateBtn: "Calculer la Graisse Corporelle",
+        yourResults: "Vos Résultats",
+        fatMass: "Masse Grasse :",
+        leanMass: "Masse Maigre :",
+        interpretation: "Interprétation",
+        footer1: "Ce calculateur utilise la formule de graisse corporelle de la Marine américaine et des mesures supplémentaires pour une précision accrue.",
+        footer2: "Les résultats sont des estimations et ne doivent pas remplacer les conseils médicaux professionnels.",
+        howToMeasure: "Comment Mesurer",
+        measureNeck: "Comment Mesurer le Cou",
+        measureWaist: "Comment Mesurer la Taille",
+        measureHip: "Comment Mesurer les Hanches",
+        measureChest: "Comment Mesurer la Poitrine",
+        measureBicep: "Comment Mesurer le Biceps",
+        measureForearm: "Comment Mesurer l'Avant-bras",
+        measureThigh: "Comment Mesurer la Cuisse",
+        measureCalf: "Comment Mesurer le Mollet",
+        categoryEssential: "Graisse Essentielle",
+        categoryAthletic: "Athlétique",
+        categoryFitness: "Bonne Forme",
+        categoryAverage: "Moyenne",
+        categoryAbove: "Au-dessus de la Moyenne",
+        interpMaleEssential: "Ce niveau est en dessous de la graisse essentielle et peut présenter des risques pour la santé. La graisse essentielle est nécessaire au fonctionnement physiologique normal.",
+        interpMaleAthletic: "Cette plage est typique des athlètes. Elle indique une excellente condition physique et un faible taux de graisse corporelle, courant chez les athlètes de compétition.",
+        interpMaleFitness: "Il s'agit d'une plage saine qui indique de bons niveaux de condition physique. Vous maintenez un mode de vie actif avec de l'exercice régulier.",
+        interpMaleAverage: "Cela se situe dans la moyenne pour les hommes. Bien que non malsain, il peut y avoir place à l'amélioration par l'alimentation et l'exercice.",
+        interpMaleAbove: "C'est au-dessus de la moyenne. Envisagez de consulter un professionnel de la santé au sujet de stratégies saines de gestion du poids.",
+        interpFemaleEssential: "Ce niveau est en dessous de la graisse essentielle et peut présenter des risques pour la santé. Les femmes ont besoin de niveaux de graisse essentielle plus élevés que les hommes pour un fonctionnement physiologique normal.",
+        interpFemaleAthletic: "Cette plage est typique des athlètes féminines. Elle indique une excellente condition physique et un faible taux de graisse corporelle, courant chez les athlètes de compétition.",
+        interpFemaleFitness: "Il s'agit d'une plage saine qui indique de bons niveaux de condition physique. Vous maintenez un mode de vie actif avec de l'exercice régulier.",
+        interpFemaleAverage: "Cela se situe dans la moyenne pour les femmes. Bien que non malsain, il peut y avoir place à l'amélioration par l'alimentation et l'exercice.",
+        interpFemaleAbove: "C'est au-dessus de la moyenne. Envisagez de consulter un professionnel de la santé au sujet de stratégies saines de gestion du poids."
+    }
+};
 
 const metricBtn = document.getElementById('metricBtn');
 const imperialBtn = document.getElementById('imperialBtn');
 const simpleBtn = document.getElementById('simpleBtn');
 const advancedBtn = document.getElementById('advancedBtn');
+const enBtn = document.getElementById('enBtn');
+const frBtn = document.getElementById('frBtn');
 const form = document.getElementById('calculatorForm');
 const advancedInputs = document.getElementById('advancedInputs');
 const femaleOnly = document.getElementById('femaleOnly');
@@ -19,6 +129,8 @@ metricBtn.addEventListener('click', () => toggleUnits(true));
 imperialBtn.addEventListener('click', () => toggleUnits(false));
 simpleBtn.addEventListener('click', () => toggleMode(false));
 advancedBtn.addEventListener('click', () => toggleMode(true));
+enBtn.addEventListener('click', () => setLanguage('en'));
+frBtn.addEventListener('click', () => setLanguage('fr'));
 
 genderInputs.forEach(input => {
     input.addEventListener('change', () => {
@@ -175,54 +287,61 @@ function displayResults(bodyFatPercentage, fatMass, leanMass, bmi, gender, weigh
 }
 
 function getBodyFatCategory(percentage, gender) {
-    let category, interpretation;
+    let categoryKey, interpretationKey;
+    const lang = currentLanguage;
 
     if (gender === 'male') {
         if (percentage < 6) {
-            category = 'Essential Fat';
-            interpretation = 'This is below the essential fat level and may pose health risks. Essential fat is necessary for normal physiological function.';
+            categoryKey = 'categoryEssential';
+            interpretationKey = 'interpMaleEssential';
         } else if (percentage < 14) {
-            category = 'Athletic';
-            interpretation = 'This range is typical for athletes. It indicates excellent fitness and low body fat, common among competitive athletes.';
+            categoryKey = 'categoryAthletic';
+            interpretationKey = 'interpMaleAthletic';
         } else if (percentage < 18) {
-            category = 'Fitness';
-            interpretation = 'This is a healthy range that indicates good fitness levels. You maintain an active lifestyle with regular exercise.';
+            categoryKey = 'categoryFitness';
+            interpretationKey = 'interpMaleFitness';
         } else if (percentage < 25) {
-            category = 'Average';
-            interpretation = 'This falls within the average range for men. While not unhealthy, there may be room for improvement through diet and exercise.';
+            categoryKey = 'categoryAverage';
+            interpretationKey = 'interpMaleAverage';
         } else {
-            category = 'Above Average';
-            interpretation = 'This is above the average range. Consider consulting with a healthcare provider about healthy weight management strategies.';
+            categoryKey = 'categoryAbove';
+            interpretationKey = 'interpMaleAbove';
         }
     } else {
         if (percentage < 14) {
-            category = 'Essential Fat';
-            interpretation = 'This is below the essential fat level and may pose health risks. Women require higher essential fat levels than men for normal physiological function.';
+            categoryKey = 'categoryEssential';
+            interpretationKey = 'interpFemaleEssential';
         } else if (percentage < 21) {
-            category = 'Athletic';
-            interpretation = 'This range is typical for female athletes. It indicates excellent fitness and low body fat, common among competitive athletes.';
+            categoryKey = 'categoryAthletic';
+            interpretationKey = 'interpFemaleAthletic';
         } else if (percentage < 25) {
-            category = 'Fitness';
-            interpretation = 'This is a healthy range that indicates good fitness levels. You maintain an active lifestyle with regular exercise.';
+            categoryKey = 'categoryFitness';
+            interpretationKey = 'interpFemaleFitness';
         } else if (percentage < 32) {
-            category = 'Average';
-            interpretation = 'This falls within the average range for women. While not unhealthy, there may be room for improvement through diet and exercise.';
+            categoryKey = 'categoryAverage';
+            interpretationKey = 'interpFemaleAverage';
         } else {
-            category = 'Above Average';
-            interpretation = 'This is above the average range. Consider consulting with a healthcare provider about healthy weight management strategies.';
+            categoryKey = 'categoryAbove';
+            interpretationKey = 'interpFemaleAbove';
         }
     }
 
-    return { category, interpretation };
+    return {
+        category: translations[lang][categoryKey],
+        interpretation: translations[lang][interpretationKey]
+    };
 }
 
 function showMeasurementGuide(measurement) {
     const guideTitle = document.getElementById('guideTitle');
     const guideContent = document.getElementById('guideContent');
+    const lang = currentLanguage;
+
+    const measureKey = 'measure' + measurement.charAt(0).toUpperCase() + measurement.slice(1);
+    guideTitle.textContent = translations[lang][measureKey];
 
     const guides = {
         neck: {
-            title: 'How to Measure Neck',
             content: `
                 <div class="measurement-guide-content">
                     <svg width="300" height="200" viewBox="0 0 300 200" style="display: block; margin: 20px auto;">
@@ -406,15 +525,32 @@ function showMeasurementGuide(measurement) {
     };
 
     const guide = guides[measurement];
-    guideTitle.textContent = guide.title;
     guideContent.innerHTML = guide.content;
     modal.style.display = 'flex';
+}
+
+function setLanguage(lang) {
+    currentLanguage = lang;
+    enBtn.classList.toggle('active', lang === 'en');
+    frBtn.classList.toggle('active', lang === 'fr');
+
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+
+    document.getElementById('guideTitle').textContent = translations[lang].howToMeasure;
+
+    saveData();
 }
 
 function saveData() {
     const data = {
         isMetric: isMetric,
         isAdvanced: isAdvanced,
+        language: currentLanguage,
         gender: document.querySelector('input[name="gender"]:checked').value,
         measurements: {}
     };
@@ -435,6 +571,10 @@ function loadSavedData() {
 
     try {
         const data = JSON.parse(savedData);
+
+        if (data.language) {
+            setLanguage(data.language);
+        }
 
         if (data.isMetric !== undefined) {
             toggleUnits(data.isMetric);
