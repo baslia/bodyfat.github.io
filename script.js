@@ -44,6 +44,7 @@ const translations = {
         categoryFitness: "Fitness",
         categoryAverage: "Average",
         categoryAbove: "Above Average",
+        categoryObese: "Obese",
         interpMaleEssential: "This is below the essential fat level and may pose health risks. Essential fat is necessary for normal physiological function.",
         interpMaleAthletic: "This range is typical for athletes. It indicates excellent fitness and low body fat, common among competitive athletes.",
         interpMaleFitness: "This is a healthy range that indicates good fitness levels. You maintain an active lifestyle with regular exercise.",
@@ -108,6 +109,7 @@ const translations = {
         categoryFitness: "Bonne Forme",
         categoryAverage: "Moyenne",
         categoryAbove: "Au-dessus de la Moyenne",
+        categoryObese: "Obèse",
         interpMaleEssential: "Ce niveau est en dessous de la graisse essentielle et peut présenter des risques pour la santé. La graisse essentielle est nécessaire au fonctionnement physiologique normal.",
         interpMaleAthletic: "Cette plage est typique des athlètes. Elle indique une excellente condition physique et un faible taux de graisse corporelle, courant chez les athlètes de compétition.",
         interpMaleFitness: "Il s'agit d'une plage saine qui indique de bons niveaux de condition physique. Vous maintenez un mode de vie actif avec de l'exercice régulier.",
@@ -387,10 +389,54 @@ function displayResults(results, bmi, gender, weight) {
     categoryEl.textContent = category;
     interpretationEl.textContent = interpretation;
 
+    displayBodyFatScale(avgBodyFat, gender);
     displayMethodResults(results, gender);
 
     resultsDiv.style.display = 'block';
     resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function displayBodyFatScale(bodyFatPercentage, gender) {
+    const marker = document.getElementById('bfMarker');
+    const markerValue = document.getElementById('bfMarkerValue');
+    const labelsContainer = document.getElementById('bfScaleLabels');
+    const lang = currentLanguage;
+
+    let ranges, maxValue;
+    if (gender === 'male') {
+        ranges = [
+            { label: translations[lang].categoryEssential, end: 6 },
+            { label: translations[lang].categoryAthletic, end: 14 },
+            { label: translations[lang].categoryFitness, end: 18 },
+            { label: translations[lang].categoryAverage, end: 25 },
+            { label: translations[lang].categoryAbove, end: 32 },
+            { label: translations[lang].categoryObese, end: 40 }
+        ];
+        maxValue = 40;
+    } else {
+        ranges = [
+            { label: translations[lang].categoryEssential, end: 14 },
+            { label: translations[lang].categoryAthletic, end: 21 },
+            { label: translations[lang].categoryFitness, end: 25 },
+            { label: translations[lang].categoryAverage, end: 32 },
+            { label: translations[lang].categoryAbove, end: 38 },
+            { label: translations[lang].categoryObese, end: 45 }
+        ];
+        maxValue = 45;
+    }
+
+    const cappedPercentage = Math.min(bodyFatPercentage, maxValue);
+    const position = (cappedPercentage / maxValue) * 100;
+    marker.style.left = `${position}%`;
+    markerValue.textContent = `${bodyFatPercentage.toFixed(1)}%`;
+
+    labelsContainer.innerHTML = '';
+    ranges.forEach(range => {
+        const label = document.createElement('div');
+        label.className = 'bf-scale-label';
+        label.textContent = range.label;
+        labelsContainer.appendChild(label);
+    });
 }
 
 function displayMethodResults(results, gender) {
@@ -697,6 +743,17 @@ function setLanguage(lang) {
     });
 
     document.getElementById('guideTitle').textContent = translations[lang].howToMeasure;
+
+    const resultsDiv = document.getElementById('results');
+    if (resultsDiv.style.display !== 'none') {
+        const bodyFatPercentage = parseFloat(document.getElementById('bodyFatPercentage').textContent);
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        displayBodyFatScale(bodyFatPercentage, gender);
+
+        const { category, interpretation } = getBodyFatCategory(bodyFatPercentage, gender);
+        document.getElementById('category').textContent = category;
+        document.getElementById('interpretationText').textContent = interpretation;
+    }
 
     saveData();
 }
