@@ -127,7 +127,7 @@ const translations = {
         methodRFM: "Masse Grasse Relative (RFM)",
         methodYMCA: "Formule YMCA",
         methodCovertBailey: "Formule de Deurenberg",
-        methodJP3: "Jackson-Pollock 3-Sites",
+        methodJP3: "Formule CUN-BAE",
         methodEnhanced: "Multi-Sites Améliorée",
         notAvailable: "Non disponible",
         requiresHip: "nécessite la mesure des hanches",
